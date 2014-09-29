@@ -1,0 +1,2 @@
+The number of clusters really depends on what kind of data we're clustering. Quite a bit of domain knowledge is needed to determine a number that is reasonable.
+The more you know about the data, the easier will be to decide on a good value of k.

@@ -9,3 +9,9 @@
 
 # RStudio files
 .Rproj.user/
+
+# data files
+**/data/
+
+# sys files
+.DS_Store

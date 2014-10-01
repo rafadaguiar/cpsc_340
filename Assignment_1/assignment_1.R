@@ -18,13 +18,22 @@ clean_corpus <- function (myCorpus) {
   myCorpus <- tm_map(myCorpus, content_transformer(removeWords), myStopwords)
 }
 
-pre_processing <- function (myCorpus) {
+pre_processing <- function (myCorpus, sparse) {
   myCorpus <- clean_corpus(myCorpus)
   # create term frequency vector for each document with word length of at least one character
-  myTdm <- DocumentTermMatrix(myCorpus, control = list(weighting = weightTfIdf)) # control=list(wordLengths=c(1,Inf))
-  myTdm2 <- removeSparseTerms(myTdm, sparse=0.96)
-  #convert to matrix
+  myTdm <- DocumentTermMatrix(myCorpus, control=list(weighting = weightTfIdf)) #  list(weighting = weightTfIdf)
+  myTdm2 <- removeSparseTerms(myTdm, sparse=sparse)
+  # Convert to matrix
   m <- as.matrix(myTdm2)
+  
+#   # Selecting relevant features:
+#   features <- c(
+#     "access", "article", "bit",  "called", "computer",
+#     "data", "disk", "drive", "file", "information",
+#     "internet", "machine", "medical", "memory", "monitor",
+#     "program", "scimed", "science", "software", "system",
+#     "technology", "version", "windows")
+#   m <- m[,features]
 }
 
 top_10_words <- function(kmeansResult, k) {
@@ -34,32 +43,52 @@ top_10_words <- function(kmeansResult, k) {
     s <- sort(kmeansResult$centers[i,], decreasing=T)
     cat(names(s)[1:10], "\n")
   }
-}ch
+}
 
 k_means <- function(m, k) {
   # set a fixed random seed for k-means
   set.seed(122)
   # k-means clustering 
   kmeansResult <- kmeans(m, k)
-  cat("Elements:", table(kmeansResult$cluster),"\n")
+  cat("K-means elements:", table(kmeansResult$cluster),"\n")
   kmeansResult
 }
 
 hierarchical_clustering <- function(m, k, method="euclidean") {
   distMatrix <- dist(scale(m), method=method)
   hclustResults <- hclust(distMatrix, method="ward.D2")
-  
   plot(hclustResults, cex=0.5, hang=-1, main="News Dendogram")
   rect.hclust(hclustResults,k)
-  cutree(hclustResults, k)
+  h <- cutree(hclustResults, k)
+  cat("H-clust elements:", table(h))
+  h
 }
 
-k <- 3
+K <- 6
+sparse <- c(0.75, 0.9, 0.93, 0.945, 0.96, 0.99)
+for (k in 3:3) {
+  for (s in sparse[3]) {
+    cat("K = ", k, " S = ", s, "\n")
+    myCorpus <- VCorpus(DirSource("./data", encoding="UTF-8"))
+    m <- pre_processing(myCorpus, s)
+    kmeansResult <- k_means(m,k)
+    top_10_words(kmeansResult,k)
+    h <- hierarchical_clustering(m, k, "cosine")
+  
+  }
+}
 
-myCorpus <- VCorpus(DirSource("./data", encoding="UTF-8"))
-m <- pre_processing(myCorpus)
-kmeansResult <- k_means(m,k)
-top_10_words(kmeansResult,k)
-hierarchical_clustering(m, k, "cosine")
 
+# Aside code for question 6 reasoning .: Hierarquical Clustering percentages
+documents = as.numeric(names(h))
+comp_hard <- documents  >= 50419 & documents <= 52404
+comp_os <- documents  >= 9141 & documents <= 10942
+sci_med <- documents  >= 58061 & documents <= 59652
 
+for (i in 1:3) {
+  cluster_percent <- c(
+    length(h[h==i & comp_hard])*100/length(h[h==i]), 
+    length(h[h==i & comp_os])*100/length(h[h==i]),
+    length(h[h==i & sci_med])*100/length(h[h==i]))
+  cat("Cluster (",i,") percentages ", cluster_percent, "\n")
+}

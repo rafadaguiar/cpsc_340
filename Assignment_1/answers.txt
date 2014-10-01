@@ -1,0 +1,35 @@
+3) It doesn't make sense to use only TF for clustering since we didn't remove the message headers.
+   Almost every document would be assigned to a cluster with these top words: 
+   lines, subject, date, newsgroups, path, messageid, organization, apr, gmt, references.
+   This would result in k = 1, what is kind of pointless.
+
+5) Using TfIdf we can definitely get a better picture of our dataset, but still, not the one I expected.
+   Since we have a data set with messsages of 3 different kinds (hardware, operational systems and medical), 
+   I was expecting a strong differentiation between the computer related and the medical. This didn't happen
+   in practice, in fact they share a lot of common words such as windows and mac.
+   I did a cross product between varying k values from 2 to 6 and removing sparse terms (0.75, 0.9, 0.93, 0.945, 0.96, 0.99).
+   
+   Between this cross product, I found the configuration k =  3, sparse = 0.93 to have the lowest entropy. 
+
+    cluster 1 (57 elements): windows dos file disk program composmswindowsmisc win version run memory 
+    cluster 2 (20 elements): card video bit mac compsysmachardware access monitor board keywords thanks 
+    cluster 3 (223 elements): drive mac compsysmachardware can scimed will problem thanks know university  
+   
+   The cluster 1 includes more documents from operational systems. The cluster 2 contains more documents from hardware.
+   The cluster 3 contains a fair amount of documents from medicine, but also includes significant ocurrences of hardware and operational systems.
+
+*** 
+    I decided that this results weren't good enough and selected a subset of features to redo the experiment.
+    ("access", "article", "bit",  "called", "computer", "data", "disk", "drive", "file", "information", "internet", "machine", "medical", "memory", "monitor", "program", "scimed", "science", "software", "system", "technology, "version", "windows")
+    For my surprise again, no susbtancial improvement. It seems that all 3 groups share a lot of the same words with different meaning(e.g., memory as RAM in computer sciences and memory as human memory in medical sciences).
+***
+
+6)  I had similar results to k-means when I runned the hierarchical clustering based on euclidian distance. When I used cosine distance
+    instead, the results were much closer to the optimal solution. [I include images of the dendograms for both methods] 
+    I believe both the k-means and the eclidian hclust were deeply influenced by outliers in our data set.
+
+    For the cosine hclust I got the following result:
+
+    cluster 1 (141 elements): the majority (58%) of documents belonged to the medical class
+    cluster 2 (78 elements): the majority (51%) of documents belonged to the operational systems class
+    cluster 3 (81 elements): the majority (56%) of documents belonged to the hardware class

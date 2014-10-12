@@ -12,6 +12,12 @@
 
 # data files
 **/data/
+**/Report/
 
 # sys files
 .DS_Store
+
+# Submission files
+*.zip
+
+

@@ -1,4 +1,4 @@
-install.packages("caret")
+# install.packages("caret")
 library(rpart)
 library(caret)
 
@@ -24,8 +24,11 @@ for (i in 1:length(models)){
   cat("Model: ", names[i], "\n")
   attribute <- rownames(models[[i]]$split)[1]
   point <- models[[i]]$split[1,"index"]
-  if (! is.null(levels(train_data[[attribute]]))){
-    point <- levels(train_data[[attribute]])[point]
+  
+  # Categorial attributes
+  if (! is.null(attributes(models[[i]])$xlevels[[attribute]])){
+    index <- models[[i]]$csplit[point,]
+    point <- attributes(models[[i]])$xlevels[[attribute]][index==1]
   }
   cat("Root split point: ", attribute,"=", point, "\n")
   prediction <- predict(models[[i]], test_data, type="class")
@@ -33,4 +36,3 @@ for (i in 1:length(models)){
   print (prediction)  
   cat("(Sensitivity, Specificity) = (", sensitivity(prediction), ",", specificity(prediction), ")\n\n")
 }
-

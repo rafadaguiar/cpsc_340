@@ -1,0 +1,4 @@
+Short answer is: the scaled version represents a better model.
+Why? Because, extreme values on columns with high variance will push our model
+away from most of the data points on our dataset. That's why standardization is often
+applied.

@@ -1,0 +1,37 @@
+Trees: 
+  Model:  F5 
+  Root split point:  age = 29.5 
+  (Sensitivity, Specificity) = ( 0.8266667 , 0.7428571 )
+  Accuracy =  0.7777778 
+
+  Model:  F10 
+  Root split point:  marital.status =  Divorced  Married-AF-spouse  Married-spouse-absent  Never-married  Separated  Widowed 
+  (Sensitivity, Specificity) = ( 0.8533333 , 0.7619048 )
+  Accuracy =  0.8 
+
+  Model:  F14 
+  Root split point:  marital.status =  Divorced  Married-AF-spouse  Married-spouse-absent  Never-married  Separated  Widowed 
+  (Sensitivity, Specificity) = ( 0.8356164 , 0.7383178 )
+  Accuracy =  0.7777778 
+
+  Model:  H5 
+  Root split point:  age = 28.5 
+  (Sensitivity, Specificity) = ( 0.7640449 , 0.7692308 )
+  Accuracy =  0.7666667 
+
+  Model:  H10 
+  Root split point:  relationship =  Not-in-family  Other-relative  Own-child  Unmarried 
+  (Sensitivity, Specificity) = ( 0.8235294 , 0.8 )
+  Accuracy =  0.8111111 
+
+  Model:  H14 
+  Root split point:  relationship =  Not-in-family  Other-relative  Own-child  Unmarried 
+  (Sensitivity, Specificity) = ( 0.8139535 , 0.7978723 )
+  Accuracy =  0.8055556(
+  
+  Comments:
+    The accuracy increases till the point we start overfiting the data (by using too many features) in both the full and half
+    training data set.
+    The more features we use, the more we will need data to avoid overfitting. On the other hand, if we don't have enough data for trainning, using more and more features is unlikely going to help.
+  
+    Thus, H10 presents the best accuracy because it does not have many features (making it possible to use less training data), being less likely to overfit the data.

@@ -1,0 +1,2 @@
+The first model (including only gre and gpa) has lower accuracy than the second model (including gre, gpa and rank).
+The reason for this being that the extra features helped in dividing the data set more precisely between the two classes.

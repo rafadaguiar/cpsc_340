@@ -33,6 +33,7 @@ for (i in 1:length(models)){
   cat("Root split point: ", attribute,"=", point, "\n")
   prediction <- predict(models[[i]], test_data, type="class")
   prediction <- table(test_data$class, prediction)
-  print (prediction)  
-  cat("(Sensitivity, Specificity) = (", sensitivity(prediction), ",", specificity(prediction), ")\n\n")
+  #   print (prediction)  
+  cat("(Sensitivity, Specificity) = (", sensitivity(prediction), ",", specificity(prediction), ")\n")
+  cat("Accuracy = ", (prediction[1,1]+prediction[2,2])/sum(prediction), "\n\n")
 }

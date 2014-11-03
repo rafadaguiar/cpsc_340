@@ -1,0 +1,3 @@
+We tested our data using 4 models: naive bayes, svm with linear kernel, svm with polinomial kernel of degree 3 and svm with polinomial kernel with degree 5.
+The svm with linear kernel presented better accuracy (1), followed by the naive bayes (0.96) and the svms with polinomial kernel(0.51).
+Other thing to notice is that naive bayes takes a lot more time to run compared to svms, because it's build considering the full set of attributes (even when they're sparse) as opposed to the svms where sparse attributes are dropped.

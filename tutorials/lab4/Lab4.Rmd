@@ -1,0 +1,161 @@
+setwd("~/Workspace/cpsc_340/tutorials/lab4")
+---
+title: "Tutorial 4"
+author: "Jason Hartford"
+date: "17 October 2014"
+output: html_document
+---
+
+This version of the tutorial 4 script shows how you can use RMarkdown to present your work. Most of it is pretty self explanatory, with the exception of generating tables. In this script I use both the `xtable` and the `kable` command to make the printed tables look nicer in the html file. We also need to use the `results='asis'` command in the r block preamble to make it print the table correctly. 
+
+For more info on markdown and what commands are available, be sure to check out John Gruber's [homepage](http://daringfireball.net/projects/markdown/) and google RMarkdown.
+
+```{r Setup, echo=FALSE}
+library(knitr)
+library(xtable)
+tab.attributes <- 'border="0" align="left" bgcolor="#FFCC00" style="border-collapse: collapse; text-align: right; width: 50%; "'
+train<- read.table("data/admission-train.csv", sep = ",", header = TRUE)
+test <- read.table("data/admission-test.csv", sep = ",", header = TRUE)
+```
+## Preprocessing
+### Examining the data
+
+We'll start by examining the data... 
+
+```{r, results='asis'}
+hd <- head(train)
+print(xtable(hd),type="html", html.table.attributes = tab.attributes)
+summ <- summary(train)
+print(xtable(summary(train)),type="html", html.table.attributes = tab.attributes)
+```
+
+### Contingency tables
+
+Contingency tables make sense more for categorical data...
+
+```{r kabel, results='asis', echo=FALSE}
+kable(xtabs(~admit + rank, data = train))
+kable(xtabs(~admit + gre, data = train))
+```
+
+### Convert numerical data to categorical data
+
+Recall, when reading in the data, R tries to infer the type of each column, so columns with integer values are treated as numbers by default. We need them as categories. To convert them, we use the `factor` command.
+
+```{r}
+train$rank <- factor(train$rank)
+head(train$rank)
+test$rank <- factor(test$rank)
+train$admit <- factor(train$admit)
+test$admit <- factor(test$admit)
+```
+
+## Analysis
+
+### training the first logistic regression model
+
+```{r, results='asis'}
+model1 <- glm(admit ~ gre + gpa, data = train, family="binomial")
+predict1 <- predict(model1, newdata = test, type = "response")
+print(xtable(summary(model1)),type="html", html.table.attributes = tab.attributes)
+```
+
+Look at the predict1 values and guess what are the values? 
+
+```{r, results='asis'}
+#head(predict1, 50)
+print(xtable(data.frame(Predict1 = head(predict1, 25))),type="html", html.table.attributes = 'border="0" style="border-collapse: collapse; text-align: right; width: 25%; "')
+```
+
+### Sensitivity/Specifity
+
+In order to change the probabilities to binary decision, we need to find a cutoff. We want a cutoff that gives us the best both sensitivity/specificity.
+
+```{r, cache=TRUE}
+perf = function(cut, mod, y)
+   {
+        yhat = (mod$fit>cut)
+        w = which(y==1)
+        sensitivity = mean( yhat[w] == 1 ) 
+        specificity = mean( yhat[-w] == 0 ) 
+        out = t(as.matrix(c(sensitivity, specificity)))
+        colnames(out) = c("sensitivity", "specificity")
+        return(out)
+     }
+
+perf(0.1,model1,train$admit)
+perf(0.5,model1,train$admit)
+perf(0.8,model1,train$admit)
+```
+
+Let's plot the sensitivity and specificity...
+
+```{r, cache=TRUE}
+sensetivity=c()
+specifity=c()
+
+for(i in seq(0.1, 0.9, by=0.1)){
+  sensetivity <- c(sensetivity,perf(i,model1,train$admit)[1])
+  specifity <- c(specifity,perf(i,model1,train$admit)[2])
+  }
+
+#find the cutoff
+plot(seq(0.1, 0.9, by=0.1), sensetivity , type="l", lty=1, col="blue", xlab="cutoff points", ylab="sensetivity/specifity", lwd=2)
+lines(seq(0.1, 0.9, by=0.1),specifity, type="l", lty=1, col="red", lwd=2)
+```
+
+#### Confusion Matrix
+
+```{r, results='asis'}
+#prediction
+predict1 <- ifelse(predict(model1, newdata=test,type="response")>0.3, 1, 0)
+confusionmatrix1 <- table(predict1, test$admit)
+print(xtable(confusionmatrix1),type="html", html.table.attributes = tab.attributes)
+```
+
+#### Accuracy of model over the test data
+
+```{r, cache=TRUE}
+#accuracy of model over the test data:
+sum(diag(confusionmatrix1))/sum(confusionmatrix1)
+```
+
+
+
+### Model 2
+
+We now fit a richer model that includes the rank of the school.
+
+```{r, results='asis'}
+model2 <- glm(admit ~ gre + gpa +  rank, data = train, family="binomial")
+print(xtable(summary(model2)),type="html", html.table.attributes = tab.attributes)
+```
+
+#### Find the cutoff
+
+```{r, cache=TRUE}
+sensetivity=c()
+specifity=c()
+for(i in seq(0.1, 0.9, by=0.1)){
+  sensetivity <- c(sensetivity,perf(i,model2,train$admit)[1])
+  specifity <- c(specifity,perf(i,model2,train$admit)[2])
+}
+
+plot(seq(0.1, 0.9, by=0.1), sensetivity , type="l", lty=1, col="blue", xlab="cutoff points", ylab="sensetivity/specifity", lwd=2)
+lines(seq(0.1, 0.9, by=0.1),specifity, type="l", lty=1, col="red", lwd=2)
+```
+
+#### Prediction
+```{r, results='asis'}
+predict2 <- ifelse(predict(model2, newdata=test,type="response")>0.3, 1, 0)
+confusionmatrix2 <- table(predict2, test$admit)
+print(xtable(summary(model2)),type="html", html.table.attributes = tab.attributes)
+```
+
+#### Accuracy of model over the test data
+
+```{r, cache=TRUE}
+sum(diag(confusionmatrix2))/sum(confusionmatrix2)
+```
+
+

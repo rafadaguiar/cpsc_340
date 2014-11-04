@@ -1,0 +1,14 @@
+1) Model:  MClean 
+           Sensitivity =  0.9426605505  Specificity =  0.890625
+
+2) RIncome has less residual error.
+
+3) Model:  RIncome 
+           Sensitivity =  0.9220183486  Specificity =  0.984375 
+   Model:  RAge 
+           Sensitivity =  0.9082568807  Specificity =  0.953125 
+   Model:  RBoth 
+           Sensitivity =  0.9220183486  Specificity =  0.984375
+4)
+a) All the models with value imputation helped in increasing the specificity value, suggesting that it might be a good technique to use depending on your data.
+b) Yes, RIncome has the smallest error in imputation and is the best classifier. Although, I would say that it is not always the case. For example, RBoth had more residual error and it is still as good classifier as RIncome.  

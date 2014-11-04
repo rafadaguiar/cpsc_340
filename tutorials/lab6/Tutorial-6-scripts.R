@@ -33,16 +33,16 @@ test_classes <- factor(tail(classes,100))
 
 NB <- naiveBayes(train_df_withoutclass,train_classes,laplace = 1)
 PredictionNB <- predict(NB,test_df_withoutclass)
-table(PredictionNB,test_classes)
-# prop.table(table(test_classes==PredictionNB))
+# table(PredictionNB,test_classes)
+prop.table(table(test_classes==PredictionNB))
 
 # SVM <- svm(train_df_withoutclass,train_classes,kernel="linear")
-# SVM <- svm(train_df_withoutclass, train_classes, kernel='polinomial', degree=3)
-# SVM <- svm(train_df_withoutclass, train_classes, kernel='polinomial', degree=5)
+# SVM <- svm(train_df_withoutclass, train_classes, kernel="polynomial", degree=3)
+SVM <- svm(train_df_withoutclass, train_classes, kernel='polynomial', degree=5)
 # summary(SVM)
 PredictionSVM <- predict(SVM,test_df_withoutclass)
-table(PredictionSVM,test_classes)
-# prop.table(table(test_classes==PredictionSVM))
+# table(PredictionSVM,test_classes)
+prop.table(table(test_classes==PredictionSVM))
 # summary(SVM)
 
 #try:

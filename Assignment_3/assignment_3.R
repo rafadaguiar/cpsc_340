@@ -47,7 +47,7 @@ best.cutoff(MClean, trainNoNA)
 cutoff <- 0.2
 
 predictClean <- ifelse(predict(MClean, newdata=test, type="response") > cutoff, 1, 0)
-confusionMatrixClean <- table(predictClean, test$default10yr)
+confusionMatrixClean <- confusionMatrix(predictClean, test$default10yr)
 cat("Model: ","MClean", "\n")
 cat("Sensitivity = ", sensitivity(confusionMatrixClean)," Specificity = ", specificity(confusionMatrixClean))
 
@@ -87,5 +87,5 @@ for (i in 1:length(loanInputs)){
   predict <- ifelse(predict(model, newdata=test, type="response") > 0.2, 1, 0)
   confusionMatrix <- table(predict, test$default10yr)
   cat("Model: ", names[i], "\n")
-  cat("Sensitivity = ", sensitivity(confusionMatrix)," Specificity = ", specificity(confusionMatrix),"\n")
+  cat("Sensitivity = ", sensitivity(t(confusionMatrix))," Specificity = ", specificity(t(confusionMatrix))," Accuracy = ", accuracy(t(confusionMatrix)),\n")
 }

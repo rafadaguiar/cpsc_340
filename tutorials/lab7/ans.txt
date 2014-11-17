@@ -1,0 +1,6 @@
+Short notes: 
+- Random forests are just a union of decision trees on a dataset.
+- Using more trees tend to improve te results (although I suspect we would reach a plateau at some point; running time cost would also increase)
+
+When ensembling SVM with glm the error rates gets smaller as we adjust the coeficients to give more weight to the model that performs better originally (in this case the SVM).
+And Yes, we can ensemble Random Forests. 

@@ -25,13 +25,13 @@ clean_corpus <- function (myCorpus) {
   myCorpus <- tm_map(myCorpus, content_transformer(function(x) gsub("^ | $","",x)))
 }
 
-pre_processing <- function (myCorpus) {
+pre_processing <- function (myCorpus, sparsity) {
   myCorpus <- clean_corpus(myCorpus)
   # create term frequency vector for each document with word length of at least one character
   myDTM <- DocumentTermMatrix(myCorpus, control=list(stemming = TRUE, weighting = weightTfIdf))
-#   myTdm2 <- removeSparseTerms(myTdm, sparse=0.95)
-#   # Convert to matrix
-#   m <- as.data.frame(as.matrix(myDTM))
+  myDTM2 <- removeSparseTerms(myDTM, sparse=sparsity)
+  # Convert to matrix
+  myDF <- as.data.frame(as.matrix(myDTM2))
 }
 
 # Training Data
@@ -53,9 +53,7 @@ trainCorpus <- c(comp_train_Corpus, other_train_Corpus)
 testCorpus <- c(comp_test_Corpus, other_test_Corpus)
 
 train_test_set <- c(trainCorpus,testCorpus)
-train_test_DTM <- pre_processing(train_test_set)
-# train_test_DTM <- removeSparseTerms(train_test_DTM, sparse=0.1)
-train_test_df<- as.data.frame(as.matrix(train_test_DTM))
+train_test_df <- pre_processing(train_test_set, sparsity=0.99)
 
 train_classes <- factor(c(rep(1, length(comp_train_Corpus)), rep(0, length(other_train_Corpus))))
 test_classes  <- factor(c(rep(1, length(comp_test_Corpus)), rep(0, length(other_test_Corpus))))
@@ -64,16 +62,19 @@ train_df_withoutclass <- head (train_test_df, length(trainCorpus))
 test_df_withoutclass <- tail (train_test_df, length(testCorpus))
 
 # SVM with different Kernels
-SVM <- svm(train_df_withoutclass, train_classes, kernel='linear')
+SVM <- svm(train_df_withoutclass, train_classes, kernel='radial')
 PredictionSVM <- predict(SVM,test_df_withoutclass)
 cm <- table(PredictionSVM,test_classes)
 cat("Sensitivity = ", cm[2,2]/(cm[2,2]+cm[1,2])," Specificity = ", cm[1,1]/(cm[1,1]+cm[2,1])," Accuracy = ", (cm[1,1]+cm[2,2])/(cm[1,1]+cm[1,2]+cm[2,1]+cm[2,2]))
 
 # Best results in terms of accuracy
-  # Radial Kernel, coef0 = 0: Sensitivity =  0.2056266  Specificity =  0.9483593  Accuracy =  0.7555762
-  # Linear Kernel: Sensitivity =  0.04143223  Specificity =  0.9926484  Accuracy =  0.7457515
-  # Sigmoid Kernel, coef0 = 4: Sensitivity =  0.004092072  Specificity =  0.9987448  Accuracy =  0.7405736  
-  # Polinomial Kernel, degree = 3: Sensitivity =  0.1570332  Specificity =  0.9426215  Accuracy =  0.7387148 
+  # (Sparsity = 0.99, 1687 features)
+  #   Linear Kernel: Sensitivity =  0.7769821  Specificity =  0.9044289  Accuracy =  0.8713489
+  # (Sparsity = 0.8, 25 features)
+  #   Radial Kernel, coef0 = 0: Sensitivity =  0.2056266  Specificity =  0.9483593  Accuracy =  0.7555762
+  #   Linear Kernel: Sensitivity =  0.04143223  Specificity =  0.9926484  Accuracy =  0.7457515
+  #   Sigmoid Kernel, coef0 = 4: Sensitivity =  0.004092072  Specificity =  0.9987448  Accuracy =  0.7405736  
+  #   Polinomial Kernel, degree = 3: Sensitivity =  0.1570332  Specificity =  0.9426215  Accuracy =  0.7387148 
 #
 
 # >>>> 2nd Part <<<<

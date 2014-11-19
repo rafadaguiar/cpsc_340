@@ -69,6 +69,7 @@ cat("Sensitivity = ", cm[2,2]/(cm[2,2]+cm[1,2])," Specificity = ", cm[1,1]/(cm[1
 
 # Best results in terms of accuracy
   # (Sparsity = 0.99, 1687 features)
+  #   Radial Kernel: Sensitivity =  0.7432225  Specificity =  0.9707728  Accuracy =  0.91171
   #   Linear Kernel: Sensitivity =  0.7769821  Specificity =  0.9044289  Accuracy =  0.8713489
   # (Sparsity = 0.8, 25 features)
   #   Radial Kernel, coef0 = 0: Sensitivity =  0.2056266  Specificity =  0.9483593  Accuracy =  0.7555762
@@ -79,13 +80,7 @@ cat("Sensitivity = ", cm[2,2]/(cm[2,2]+cm[1,2])," Specificity = ", cm[1,1]/(cm[1
 
 # >>>> 2nd Part <<<<
 
-# I'm getting the same results as before when using the cross parameter
-SVM <- svm(train_df_withoutclass, train_classes, kernel='radial', cross=5)
-PredictionSVM <- predict(SVM,test_df_withoutclass)
-cm <- table(PredictionSVM,test_classes)
-cat("Sensitivity = ", cm[2,2]/(cm[2,2]+cm[1,2])," Specificity = ", cm[1,1]/(cm[1,1]+cm[2,1])," Accuracy = ", (cm[1,1]+cm[2,2])/(cm[1,1]+cm[1,2]+cm[2,1]+cm[2,2]))
-
-# Let's try using cvTools
+# Let's try a 5 fold
 folds <- cvFolds(nrow(train_test_df), K=5)
 train_fold <- folds$subset[1:floor(4*folds$n/5)]
 test_fold <- na.omit(folds$subset[floor(4*folds$n/5)+1:folds$n])
@@ -94,15 +89,18 @@ classes <- factor(c(
   rep(1, length(comp_test_Corpus)),  rep(0, length(other_test_Corpus))
 ))
 
-SVM <- svm(train_test_df[train_fold,], classes[train_fold], kernel='polynomial',degree=3)
+SVM <- svm(train_test_df[train_fold,], classes[train_fold], kernel='radial')
 PredictionSVM <- predict(SVM, train_test_df[test_fold,])
 cm <- table(PredictionSVM, classes[test_fold])
 cat("Sensitivity = ", cm[2,2]/(cm[2,2]+cm[1,2])," Specificity = ", cm[1,1]/(cm[1,1]+cm[2,1])," Accuracy = ", (cm[1,1]+cm[2,2])/(cm[1,1]+cm[1,2]+cm[2,1]+cm[2,2]))
 
 # Best results in terms of accuracy (using 5-fold)
-  # Radial Kernel, coef0 = 0: Sensitivity =  0.2137643  Specificity =  0.9590893  Accuracy =  0.769496
-  # Linear Kernel: Sensitivity =  0  Specificity =  1  Accuracy =  0.7456233
-  # Polinomial Kernel, degree = 3: Sensitivity =  0.1532847  Specificity =  0.9484169  Accuracy =  0.7461538
-  # Sigmoid Kernel, coef0 = 4: Sensitivity =  0.003128259  Specificity =  0.998577  Accuracy =  0.7453581  
-  
+  # (Sparsity = 0.99, 1687 features)
+  #   Radial Kernel: Sensitivity =  0.842161  Specificity =  0.9794763  Accuracy =  0.9450928
+  #   Linear Kernel: Sensitivity =  0.8315678  Specificity =  0.9327672  Accuracy =  0.9074271
+  # (Sparsity = 0.8, 25 features)
+  #   Radial Kernel, coef0 = 0: Sensitivity =  0.2137643  Specificity =  0.9590893  Accuracy =  0.769496
+  #   Linear Kernel: Sensitivity =  0  Specificity =  1  Accuracy =  0.7456233
+  #   Polinomial Kernel, degree = 3: Sensitivity =  0.1532847  Specificity =  0.9484169  Accuracy =  0.7461538
+  #   Sigmoid Kernel, coef0 = 4: Sensitivity =  0.003128259  Specificity =  0.998577  Accuracy =  0.7453581   
 #
